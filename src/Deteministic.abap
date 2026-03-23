@@ -19,7 +19,7 @@ determination GetCities
 
 
 
-
+The READ ENTITIES statement returns an internal table with the derived type FOR READ RESULT. To change the data in the transactional buffer, you need a MODIFY ENTITIES statement. 
 
 
 
@@ -43,3 +43,16 @@ LOOP AT connections INTO DATA(connection).
       WHERE airport_id = @connection-AirportToId
       INTO ( @connection-City_To, @connection-CountryCode_To ).
     MODIFY connections FROM connection.
+
+
+    DATA connection_upd TYPE TABLE FOR UPDATE zs400_r_connections.
+    connection_upd = corresponding #( connections ).
+
+    MODIFY ENTITIES OF zs400_r_connections
+      ENTITY connections
+      UPDATE
+       FIELDS ( City_From, CountryCode, City_To, CountryCode_To )
+      WITH connection_upd
+      REPORTED DATA(reported_records).
+    reported-connection =corresponding #( reported_records-connection ).
+    ENDLOOP.
